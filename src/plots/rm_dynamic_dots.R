@@ -7,7 +7,7 @@ library(ggpubr)
 library(reshape2)
 # install.packages('circular')
 
-setwd("d:/OneDrive/projects/rm_dynamic_env/src/plots/")
+setwd("d:/OneDrive/projects/rm_dynmc_env/src/plots/")
 
 # df_main_full.csv
 data <- read_csv(file.choose())
@@ -26,6 +26,7 @@ data <- data %>%
 
 data$eccentricity <-factor(data$eccentricity)
 
+# ---------arrange data--------------------
 
 data_by_subject <- data %>% 
   group_by(nblines,
@@ -251,7 +252,7 @@ plt_num_ds2
 # check dot response distribution by number deviation
 
 
-target_conditions <- c("condition 1")
+target_conditions <- c("condition 2")
 
 data1_a <- data %>%
   filter(condition %in% target_conditions)
@@ -289,11 +290,11 @@ data1_a <- data1_a %>%
 
 data1_a$dot_deviation <- factor(data1_a$dot_deviation_label)
 
-summary_data1 <- data1_a %>%
-  group_by(line_deviation, dot_deviation) %>%
-  summarise(count = n(), .groups = 'drop') %>%
-  group_by(line_deviation) %>%
-  mutate(percent = count / sum(count) * 100)
+# summary_data1 <- data1_a %>%
+#   group_by(line_deviation, dot_deviation) %>%
+#   summarise(count = n(), .groups = 'drop') %>%
+#   group_by(line_deviation) %>%
+#   mutate(percent = count / sum(count) * 100)
 
 line_dev_labels <- data1_a %>%
   count(line_deviation) %>%
@@ -345,12 +346,12 @@ plt_condi <- ggplot() +
     size = 3) +
     
   
-  labs(title = paste0("Response Distribution by Number Deviation (", 
+  labs(title = paste0("Response Distribution by Number Deviation (",
        paste(target_conditions, collapse = " & "), ")"),
        x = "Num Deviation (percentage trials)",
        y = "Percentage",
        fill = "Dot location") +
-  
+
   scale_y_continuous(limits = c(0, 105)) +
   
   scale_fill_manual(values = used_colors)+
@@ -382,6 +383,107 @@ plt_condi
 
 # sep for rm and non-rm, cal mean dot deviation
 
+target_conditions <- c("condition 1")
 
+data_2 <- data %>%
+  filter(condition %in% target_conditions)
+
+line_dev_labels2 <- data_2 %>%
+  count(line_deviation) %>%
+  mutate(percent = round(n / sum(n) * 100, 1),
+         label = paste0(line_deviation, "\n(", percent, "%)")) %>%
+  arrange(as.numeric(as.character(line_deviation)))
+
+# remove DS = 1, 2 (9.6% trials are removed)
+data_2 <- data_2 %>%
+  filter(line_deviation %in% c(-1,0))
+
+data2_by_subject <- data_2 %>% 
+  group_by(line_deviation, participant_id) %>% 
+  summarise(
+    dot_deviation_mean = mean(dot_deviation),
+    dot_deviation_std = sd(dot_deviation),
+    n = n()
+  )
+
+data2_across_subject <- data2_by_subject %>% 
+  group_by(line_deviation) %>% 
+  summarise(
+    dot_deviation = mean(dot_deviation_mean),
+    dot_deviation_std = sd(dot_deviation_mean),
+    n = n()
+  ) %>%
+  mutate(
+    dot_deviation_SEM = dot_deviation_std / sqrt(n),
+    dot_deviation_CI = dot_deviation_SEM * qt((1 - 0.05) / 2 + .5, n - 1)
+  )
+
+
+plt_dot_ds <- ggplot() +
+  
+  geom_point(
+    data = data2_across_subject,
+    aes(
+      x = dot_deviation,
+      y = line_deviation
+    ),
+    position = position_dodge(0.8), stat = "identity", alpha = 0.8,
+    size = 3
+  ) +
+  
+  
+  geom_point(
+    data = data2_by_subject,
+    aes(
+      x = dot_deviation_mean,
+      y = line_deviation
+    ),
+    position = position_dodge(0.8), stat = "identity", alpha = 0.2,
+    size = 3
+  ) +
+  
+  #geom_vline(xintercept = 0, linetype = "dashed") +
+  
+  geom_errorbarh(data = data2_across_subject, aes(x = dot_deviation,
+                                                y = line_deviation,
+                                                xmin = dot_deviation - dot_deviation_SEM,
+                                                xmax = dot_deviation + dot_deviation_SEM
+  ),
+  
+  size  = 0.8,
+  height = .00,
+  position = position_dodge(0.8)) +
+  
+  
+  labs(x = "Dot Deviation", y = "RM conditions") +
+  
+  scale_y_continuous(breaks = c(-1, 0),
+                     labels = c("-1", "0"),
+                     expand = c(0.1, 0.5)) +
+  
+  #scale_x_continuous(limits = c(0, 105)) +
+  
+  theme(axis.title.x = element_text(color="black", size=14, face="bold"),
+        axis.title.y = element_text(color="black", size=14, face="bold"),
+        panel.border = element_blank(),  
+        # remove panel grid lines
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        # remove panel background
+        panel.background = element_blank(),
+        # add axis line
+        axis.line = element_line(colour = "grey"),
+        # x,y axis tick labels
+        axis.text.x = element_text(size = 12, face = "bold"),
+        axis.text.y = element_text(size = 12, face = "bold"),
+        # legend size
+        legend.title = element_text(size = 12, face = "bold"),
+        legend.text = element_text(size = 10),
+        # facet wrap title
+        strip.text.x = element_text(size = 12, face = "bold"),
+        panel.spacing = unit(1.0, "lines"))
+
+
+plt_dot_ds
 
 
