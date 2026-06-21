@@ -1,7 +1,7 @@
 library(dplyr)
 
 # set working dir
-setwd("D:/OneDrive/projects/RM_action/data_ens/")
+setwd("D:/OneDrive/projects/RM_action/data_ens/data_exp1/")
 
 # get all csv files
 file_list <- list.files(pattern = "\\.csv$", full.names = TRUE)
@@ -130,5 +130,21 @@ df_clean <- df_clean %>%
 #   filter(type != "overreport")
 # 
 
-readr::write_csv(df_clean, "data.csv")
+# rename participant IDs
+df_clean <- df_clean %>%
+  mutate(
+    participant_raw = participant,
+    
+    participant_num = ifelse(
+      grepl("[0-9]+", participant_raw),
+      sub(".*?([0-9]+).*", "\\1", participant_raw, perl = TRUE),
+      NA_character_
+    ),
+    
+    participant = sprintf("%03d", as.integer(participant_num))
+  ) %>%
+  select(-participant_num)
+
+
+readr::write_csv(df_clean, "data_RMaction_exp1.csv")
 
