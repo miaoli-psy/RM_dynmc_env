@@ -112,7 +112,7 @@ df_clean <- df_clean %>%
     target_position = (first + second)/2,
     dot_position = abs(parse_num(dot_position)),
     number_deviation = num_resp - set_size,
-    dot_deviaiton = dot_position - target_position
+    dot_deviation = dot_position - target_position
   )
 
 # RM
