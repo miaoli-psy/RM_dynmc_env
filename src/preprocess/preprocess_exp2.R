@@ -1,7 +1,7 @@
 library(dplyr)
 
 # set working dir
-setwd("D:/OneDrive/projects/RM_action/data_ens/data_exp2/")
+setwd("D:/OneDrive/projects/RM_action/data_ens/EXP_2/")
 
 # get all csv files
 file_list <- list.files(pattern = "\\.csv$", full.names = TRUE)

@@ -1,11 +1,11 @@
 library(dplyr)
 
 # set working dir
-setwd("D:/OneDrive/projects/RM_action/data_ens/data_exp1/")
+setwd("D:/OneDrive/projects/RM_action/data_ens/EXP_1/Main/")
 
 # get all csv files
 file_list <- list.files(pattern = "\\.csv$", full.names = TRUE)
-file_list <- file_list[basename(file_list) != "data.csv"]
+# file_list <- file_list[basename(file_list) != "data.csv"]
 
 # read and combine
 data <- file_list %>%

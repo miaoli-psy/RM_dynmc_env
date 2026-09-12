@@ -2,11 +2,10 @@ library(dplyr)
 library(ggplot2)
 
 # # set working dir
-# setwd("D:/OneDrive/projects/RM_action/src/analysis/")
-
+setwd("D:/OneDrive/projects/RM_action/data_ens/")
 
 # read data
-data <- readr::read_csv("data.csv")
+data <- readr::read_csv("data_RMaction_exp1.csv")
 
 data$set_size <- factor(data$set_size)
 
@@ -19,7 +18,6 @@ df_check_age <- data %>%
 mean(df_check_age$age)
 
 # RM in number task
-
 data_by_participant <- data %>%
   group_by(participant, set_size) %>% 
   summarise(
@@ -183,11 +181,11 @@ my_plot_dotdv
 
 
 m_full <- lme4::lmer(
-  dot_deviaiton ~ set_size * type + (1 |participant), data = data
+  dot_deviation ~ set_size * type + (1 |participant), data = data
 )
 
 m_reduce <- lme4::lmer(
-  dot_deviaiton ~ set_size + type + (1 |participant), data = data
+  dot_deviation ~ set_size + type + (1 |participant), data = data
 )
 
 anova(m_full, m_reduce)
