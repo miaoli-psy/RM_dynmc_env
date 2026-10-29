@@ -88,9 +88,10 @@ slides/
 archive/
 .idea/
 data_ens/
+data_lille/
 raw_data.rar
 run_rm_action_Lilie/
-touch_res/
+run_touch_res/
 work/
 outputs/
 
